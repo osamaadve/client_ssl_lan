@@ -1,0 +1,21 @@
+Purpose:
+This component runs on the user's devices to connect to the server and interact with it.
+
+Main Components:
+run_client(...):
+The main function to start the client. It sets up an SSL context (ssl.SSLContext) for the client, loading the server's certificate (server.crt as cacert) to verify the server's identity. It creates a TCP socket, connects to the server, and wraps the socket with SSL (context.wrap_socket). It sends an identity message, then enters a loop to display the main menu to the user and execute the selected action (calls send_message, upload_file, browse_server_files, or sends disconnect).
+
+send_message(...):
+Prepares a text message in JSON format and sends it to the server using send_msg.
+
+upload_file(ssl_sock, filepath) (previously send_file):
+Verifies the existence of the local file, sends its metadata (file_info) to the server, waits for the server’s confirmation (ready_for_upload), then reads the local file and sends its contents in chunks using send_msg. Waits for a final acknowledgment (upload_received).
+
+browse_server_files(ssl_sock, download_dir):
+Manages the file browsing process. Enters a loop: sends a list_dir request, receives dir_listing or error, displays the listing using display_listing, and prompts the user to select an index (for navigation or download) or a command (r, q). If a file is selected for download, it sends a download_file request.
+
+display_listing(listing_data):
+Takes the directory listing data received from the server and formats it for readable display in the terminal, including indexes for selection.
+
+receive_file_from_server(ssl_sock, filename, filesize, save_dir):
+Called after sending a download_file request and receiving a file_info response from the server. Receives the file data in chunks using recv_msg and saves it as a local file in the specified download_dir.
